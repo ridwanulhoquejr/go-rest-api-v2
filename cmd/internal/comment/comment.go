@@ -44,7 +44,6 @@ func NewService(store Store) *Service {
 }
 
 // Implementing the declared methods
-
 func (s *Service) GetComment(ctx context.Context, id string) (Comment, error) {
 
 	fmt.Println("retreiving a comment")
