@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/comment"
 	"github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/db"
+	transportHttp "github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/transport/http"
 )
 
 // RUN - is going to be responsible for
@@ -26,11 +26,15 @@ func Run() error {
 		return err
 	}
 
+	// creating a new instance of the comment service
 	cmtService := comment.NewService(db)
 
-	fmt.Println(cmtService.GetComment(context.Background(),
-		"af7c1fe6-d669-414e-b066-e9733f0de7a8",
-	))
+	// entry point for our http server route handling
+	httpHandler := transportHttp.NewHandler(cmtService)
+	if err := httpHandler.Serve(); err != nil {
+		fmt.Println("failed to start the server")
+		return err
+	}
 
 	return nil
 }
