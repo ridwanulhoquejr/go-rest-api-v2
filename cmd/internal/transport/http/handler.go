@@ -28,6 +28,8 @@ func NewHandler(service CommentService) *Handler {
 	// bcz it has a reciver of the Handler struct. we can acces it
 	// by using a handler struct instance
 	h.mapRoutes()
+	h.Router.Use(JSONMiddleware)
+	h.Router.Use(LoggingMiddleware)
 
 	h.Server = &http.Server{
 		Addr:    ":8080",
@@ -47,6 +49,7 @@ func (h *Handler) mapRoutes() {
 	h.Router.HandleFunc("/api/v1/comment/{id}", h.GetComment).Methods("GET")
 	h.Router.HandleFunc("/api/v1/comment/{id}", h.UpdateComment).Methods("PUT")
 	h.Router.HandleFunc("/api/v1/comment/{id}", h.DeleteComment).Methods("DELETE")
+	h.Router.HandleFunc("/api/v1/get-multiple", h.GetMultipleComment).Methods("GET")
 }
 
 func (h *Handler) Serve() error {

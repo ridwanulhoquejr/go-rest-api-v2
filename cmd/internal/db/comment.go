@@ -10,10 +10,10 @@ import (
 )
 
 type CommentRow struct {
-	ID     string
-	Slug   sql.NullString
-	Body   sql.NullString
-	Author sql.NullString
+	ID     string         `db:"id"`
+	Slug   sql.NullString `db:"slug"`
+	Body   sql.NullString `db:"body"`
+	Author sql.NullString `db:"author"`
 }
 
 func convertCommentRowToComment(c CommentRow) comment.Comment {
@@ -23,6 +23,46 @@ func convertCommentRowToComment(c CommentRow) comment.Comment {
 		Body:   c.Body.String,
 		Author: c.Author.String,
 	}
+}
+
+// Get multiple comments
+func (d *Database) GetMultipleComment(ctx context.Context) ([]comment.Comment, error) {
+
+	var cmtRows []CommentRow
+	rows, err := d.Client.QueryContext(ctx,
+		`SELECT * FROM comments`,
+	)
+	if err != nil {
+		return []comment.Comment{},
+			fmt.Errorf("error fetching multiple comments: %w", err)
+	}
+
+	for rows.Next() {
+		var cmtRow CommentRow
+
+		err := rows.Scan(
+			&cmtRow.ID,
+			&cmtRow.Slug,
+			&cmtRow.Body,
+			&cmtRow.Author,
+		)
+		if err != nil {
+			return []comment.Comment{},
+				fmt.Errorf("error scanning multiple comments: %w", err)
+		}
+
+		cmtRows = append(cmtRows, cmtRow)
+	}
+
+	// these extra steps are taken to convert the CommentRow to Comment
+	// since it is a list of comments but converCommentRowToComment takes a single CommentRow
+	// we have to loop through the list of CommentRow and convert each to a Comment
+	var comments []comment.Comment
+	for _, cmtRow := range cmtRows {
+		comments = append(comments, convertCommentRowToComment(cmtRow))
+	}
+
+	return comments, nil
 }
 
 func (d *Database) GetComment(ctx context.Context, uuid string) (comment.Comment, error) {
@@ -41,13 +81,17 @@ func (d *Database) GetComment(ctx context.Context, uuid string) (comment.Comment
 		&cmtRow.Author,
 	)
 	if err != nil {
-		return comment.Comment{}, fmt.Errorf("error featching comment by uuid: %w", err)
+		return comment.Comment{},
+			fmt.Errorf("error featching comment by uuid: %w", err)
 	}
 
 	return convertCommentRowToComment(cmtRow), nil
 }
 
-func (d *Database) PostComment(ctx context.Context, c comment.Comment) (comment.Comment, error) {
+func (d *Database) PostComment(
+	ctx context.Context,
+	c comment.Comment,
+) (comment.Comment, error) {
 
 	c.ID = uuid.NewV4().String()
 

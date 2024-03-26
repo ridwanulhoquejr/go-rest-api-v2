@@ -14,10 +14,10 @@ var (
 // Comment - a representation of the comment
 // structure for our Service
 type Comment struct {
-	ID     string
-	Slug   string
-	Body   string
-	Author string
+	ID     string `json:"id"`
+	Slug   string `json:"slug"`
+	Body   string `json:"body"`
+	Author string `json:"author"`
 }
 
 // Store interface: its a contract
@@ -31,6 +31,7 @@ type Store interface {
 	PostComment(context.Context, Comment) (Comment, error)
 	DeleteComment(context.Context, string) error
 	UpdateComment(context.Context, string, Comment) (Comment, error)
+	GetMultipleComment(context.Context) ([]Comment, error)
 }
 
 // Service - is the struct on which all our
@@ -47,6 +48,22 @@ func NewService(store Store) *Service {
 }
 
 // Implementing the declared methods
+
+// GetMultipleComment - get all the comments
+func (s *Service) GetMultipleComment(ctx context.Context) ([]Comment, error) {
+
+	cmts, err := s.Store.GetMultipleComment(ctx)
+
+	if err != nil {
+		fmt.Println(err)
+		return []Comment{}, err
+	}
+
+	fmt.Println(cmts)
+
+	return cmts, nil
+}
+
 func (s *Service) GetComment(ctx context.Context, id string) (Comment, error) {
 
 	fmt.Println("retreiving a comment")

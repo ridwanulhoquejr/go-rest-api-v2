@@ -31,6 +31,7 @@ type CommentService interface {
 	PostComment(context.Context, comment.Comment) (comment.Comment, error)
 	UpdateComment(ctx context.Context, ID string, newCmt comment.Comment) (comment.Comment, error)
 	DeleteComment(ctx context.Context, ID string) error
+	GetMultipleComment(ctx context.Context) ([]comment.Comment, error)
 }
 
 func (h *Handler) PostComment(
@@ -56,6 +57,26 @@ func (h *Handler) PostComment(
 
 }
 
+//? handler func for our route
+
+// 1. getmultiple comments
+func (h *Handler) GetMultipleComment(
+	w http.ResponseWriter, r *http.Request) {
+
+	cmts, err := h.Service.GetMultipleComment(r.Context())
+
+	if err != nil {
+		log.Println("failed to get multiple comments from service layer", err)
+		return
+	}
+
+	if err := WriteJson(w, http.StatusOK, cmts); err != nil {
+		log.Println("failed to write json response", err)
+		return
+	}
+}
+
+// get single comment
 func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -111,6 +132,8 @@ func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+// delete a comment
 func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -135,7 +158,6 @@ func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func WriteJson(w http.ResponseWriter, status int, v any) error {
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(v)
 }
