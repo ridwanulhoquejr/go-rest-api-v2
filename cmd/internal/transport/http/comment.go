@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/comment"
 )
@@ -34,27 +35,49 @@ type CommentService interface {
 	GetMultipleComment(ctx context.Context) ([]comment.Comment, error)
 }
 
+type PostCommentRequest struct {
+	Slug   string `json:"slug" validate:"required"`
+	Body   string `json:"body" validate:"required"`
+	Author string `json:"author" validate:"required"`
+}
+
+func convertPostCmtReqToCmt(c PostCommentRequest) comment.Comment {
+	return comment.Comment{
+		Slug:   c.Slug,
+		Body:   c.Body,
+		Author: c.Author,
+	}
+}
+
 func (h *Handler) PostComment(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	var cmt comment.Comment
+	var cmt PostCommentRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&cmt); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	cmt, err := h.Service.PostComment(r.Context(), cmt)
+	//? validate the request body
+	validate := validator.New()
+	if err := validate.Struct(cmt); err != nil {
+		http.Error(w, "some required fields are missing", http.StatusUnprocessableEntity)
+		return
+	}
+
+	convertedCmt := convertPostCmtReqToCmt(cmt)
+
+	postedCmt, err := h.Service.PostComment(r.Context(), convertedCmt)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	if err := WriteJson(w, http.StatusOK, cmt); err != nil {
+	if err := WriteJson(w, http.StatusOK, postedCmt); err != nil {
 		panic(err)
 	}
-
 }
 
 //? handler func for our route

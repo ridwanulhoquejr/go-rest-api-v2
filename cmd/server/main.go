@@ -27,6 +27,8 @@ func Run() error {
 	}
 
 	// creating a new instance of the comment service
+	//? we are passing the repository as a dependency to the service
+	//? so that the service can use the repository to interact with the database
 	cmtService := comment.NewService(db)
 
 	// entry point for our http server route handling
@@ -45,5 +47,4 @@ func main() {
 	if err := Run(); err != nil {
 		fmt.Println(err)
 	}
-
 }

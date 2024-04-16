@@ -9,6 +9,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// CommentRow is a struct that represents a row in the comments table
+// it is used to scan the rows from the database
+// it is also used to insert rows into the database
 type CommentRow struct {
 	ID     string         `db:"id"`
 	Slug   sql.NullString `db:"slug"`
@@ -16,6 +19,7 @@ type CommentRow struct {
 	Author sql.NullString `db:"author"`
 }
 
+// ? private function as it start with small letter
 func convertCommentRowToComment(c CommentRow) comment.Comment {
 	return comment.Comment{
 		ID:     c.ID,
@@ -26,6 +30,8 @@ func convertCommentRowToComment(c CommentRow) comment.Comment {
 }
 
 // Get multiple comments
+// The method in service layer is calling this method
+// so, that method also a reciver of the Service -> [db.Client] struct
 func (d *Database) GetMultipleComment(ctx context.Context) ([]comment.Comment, error) {
 
 	var cmtRows []CommentRow
@@ -166,5 +172,4 @@ func (d *Database) UpdateComment(
 	}
 
 	return convertCommentRowToComment(updateRow), nil
-
 }
