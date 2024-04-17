@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/comment"
-	"github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/db"
-	transportHttp "github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/transport/http"
+	"github.com/ridwanulhoquejr/go-rest-api-v2/internal/comment"
+	"github.com/ridwanulhoquejr/go-rest-api-v2/internal/db"
+	transportHttp "github.com/ridwanulhoquejr/go-rest-api-v2/internal/transport/http"
 )
 
 // RUN - is going to be responsible for

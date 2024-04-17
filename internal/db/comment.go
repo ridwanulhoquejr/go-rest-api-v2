@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/comment"
+	"github.com/ridwanulhoquejr/go-rest-api-v2/internal/comment"
 	uuid "github.com/satori/go.uuid"
 )
 

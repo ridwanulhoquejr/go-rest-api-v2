@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
-	"github.com/ridwanulhoquejr/go-rest-api-v2/cmd/internal/comment"
+	"github.com/ridwanulhoquejr/go-rest-api-v2/internal/comment"
 )
 
 type ApiError struct {
